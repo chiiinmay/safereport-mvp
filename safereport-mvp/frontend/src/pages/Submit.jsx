@@ -20,7 +20,7 @@ export default function Submit() {
       formData.append('ai_chat_log', aiChatLog);
     }
 
-    const BASE = import.meta.env.VITE_API_URL || '';
+    const BASE = import.meta.env.VITE_API_URL || 'https://safereport-mvp.onrender.com';
     try {
       const res = await fetch(`${BASE}/api/reports`, {
         method: 'POST',

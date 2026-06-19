@@ -33,7 +33,7 @@ export default function Admin() {
   const fetchData = async () => {
     setLoading(true);
     setError(null);
-    const BASE = import.meta.env.VITE_API_URL || '';
+    const BASE = import.meta.env.VITE_API_URL || 'https://safereport-mvp.onrender.com';
     try {
       const res = await fetch(`${BASE}/api/admin/reports`, {
         headers: { 'x-admin-key': adminKey, 'x-role': role }
@@ -60,7 +60,7 @@ export default function Admin() {
 
   const loadCaseDetails = async (caseId) => {
     setSelectedCase(caseId);
-    const BASE = import.meta.env.VITE_API_URL || '';
+    const BASE = import.meta.env.VITE_API_URL || 'https://safereport-mvp.onrender.com';
     try {
       const res = await fetch(`${BASE}/api/admin/reports/${caseId}`, {
         headers: { 'x-admin-key': adminKey, 'x-role': role }
@@ -75,7 +75,7 @@ export default function Admin() {
 
   const updateStatus = async (newStatus) => {
     try {
-      const BASE = import.meta.env.VITE_API_URL || '';
+      const BASE = import.meta.env.VITE_API_URL || 'https://safereport-mvp.onrender.com';
       const res = await fetch(`${BASE}/api/admin/reports/${selectedCase}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey, 'x-role': role },
@@ -92,7 +92,7 @@ export default function Admin() {
   const handleEscalate = async () => {
     if (!window.confirm("Are you sure you want to escalate this case?")) return;
     try {
-      const BASE = import.meta.env.VITE_API_URL || '';
+      const BASE = import.meta.env.VITE_API_URL || 'https://safereport-mvp.onrender.com';
       const res = await fetch(`${BASE}/api/admin/reports/${selectedCase}/escalate`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey, 'x-role': role }
@@ -109,7 +109,7 @@ export default function Admin() {
     e.preventDefault();
     if (!reply.trim()) return;
     try {
-      const BASE = import.meta.env.VITE_API_URL || '';
+      const BASE = import.meta.env.VITE_API_URL || 'https://safereport-mvp.onrender.com';
       const res = await fetch(`${BASE}/api/admin/reports/${selectedCase}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey, 'x-role': role },

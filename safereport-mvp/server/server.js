@@ -11,13 +11,25 @@ const { generateCaseId, generateSecretToken } = require('./caseId');
 const app = express();
 app.use(helmet());
 app.use(cors({
-  origin: [
-    process.env.FRONTEND_URL || 'http://localhost:5173',
-    'http://localhost:5173',
-    'http://localhost:3000',
-  ],
-  methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+    // Allow all vercel.app deployments, localhost, and FRONTEND_URL env var
+    const allowed = [
+      /\.vercel\.app$/,
+      /^http:\/\/localhost/,
+    ];
+    if (process.env.FRONTEND_URL) {
+      allowed.push(process.env.FRONTEND_URL);
+    }
+    const isAllowed = allowed.some(pattern =>
+      typeof pattern === 'string' ? pattern === origin : pattern.test(origin)
+    );
+    callback(isAllowed ? null : new Error('Not allowed by CORS'), isAllowed);
+  },
+  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'x-admin-key', 'x-role'],
+  credentials: true,
 }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../public')));

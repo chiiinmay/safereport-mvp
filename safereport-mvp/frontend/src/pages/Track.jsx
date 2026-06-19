@@ -38,7 +38,7 @@ export default function Track() {
     setLoading(true);
     setError(null);
     
-    const BASE = import.meta.env.VITE_API_URL || '';
+    const BASE = import.meta.env.VITE_API_URL || 'https://safereport-mvp.onrender.com';
     try {
       const res = await fetch(`${BASE}/api/reports/${encodeURIComponent(caseId.trim())}/status`, {
         method: 'POST',
@@ -64,7 +64,7 @@ export default function Track() {
     
     setSending(true);
     try {
-      const BASE = import.meta.env.VITE_API_URL || '';
+      const BASE = import.meta.env.VITE_API_URL || 'https://safereport-mvp.onrender.com';
       const res = await fetch(`${BASE}/api/reports/${encodeURIComponent(data.caseId)}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
