@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>SafeReport — Track Your Case</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 16px; }
+  input { width: 100%; padding: 8px; margin: 4px 0 12px; box-sizing: border-box; }
+  button { padding: 10px 20px; cursor: pointer; }
+  .status { font-size: 20px; font-weight: bold; padding: 12px; background: #eef; margin: 16px 0; }
+  .msg { padding: 8px 12px; margin: 6px 0; border-radius: 6px; }
+  .msg.reporter { background: #e8f5e9; text-align: right; }
+  .msg.admin { background: #eee; }
+</style>
+</head>
+<body>
+  <h1>Track Your Case</h1>
+  <label>Case ID</label>
+  <input id="caseId" />
+  <label>Secret Token</label>
+  <input id="token" />
+  <button onclick="checkStatus()">Check Status</button>
+
+  <div id="output" style="display:none">
+    <div class="status" id="statusBox"></div>
+    <h3>Messages</h3>
+    <div id="messages"></div>
+    <textarea id="replyBox" rows="3" style="width:100%" placeholder="Reply..."></textarea>
+    <button onclick="sendReply()">Send Reply</button>
+  </div>
+
+<script>
+const params = new URLSearchParams(location.search);
+if (params.get('case')) document.getElementById('caseId').value = params.get('case');
+
+async function checkStatus() {
+  const caseId = document.getElementById('caseId').value.trim();
+  const token = document.getElementById('token').value.trim();
+
+  const res = await fetch(`/api/reports/${encodeURIComponent(caseId)}/status`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token }),
+  });
+
+  if (!res.ok) {
+    alert('Case not found, or token incorrect.');
+    return;
+  }
+
+  const data = await res.json();
+  document.getElementById('statusBox').textContent = `Status: ${data.status}`;
+  const msgDiv = document.getElementById('messages');
+  msgDiv.innerHTML = data.messages.map(m =>
+    `<div class="msg ${m.sender}"><strong>${m.sender === 'admin' ? 'Committee' : 'You'}:</strong> ${escapeHtml(m.body)}</div>`
+  ).join('') || '<p>No messages yet.</p>';
+  document.getElementById('output').style.display = 'block';
+}
+
+async function sendReply() {
+  const caseId = document.getElementById('caseId').value.trim();
+  const token = document.getElementById('token').value.trim();
+  const body = document.getElementById('replyBox').value.trim();
+  if (!body) return;
+
+  const res = await fetch(`/api/reports/${encodeURIComponent(caseId)}/messages`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token, body }),
+  });
+  if (res.ok) {
+    document.getElementById('replyBox').value = '';
+    checkStatus();
+  }
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+</script>
+</body>
+</html>

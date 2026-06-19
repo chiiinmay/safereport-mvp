@@ -1,0 +1,47 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --color-brand-dark: #0f172a;
+  --color-brand-primary: #1e3a8a;
+  --color-brand-secondary: #3b82f6;
+  --color-brand-accent: #06b6d4;
+  --color-brand-light: #f8fafc;
+  --color-alert-danger: #ef4444;
+}
+
+@layer base {
+  body {
+    @apply bg-brand-light text-brand-dark antialiased font-sans min-h-screen selection:bg-brand-secondary selection:text-white;
+    background-image: radial-gradient(ellipse at top right, var(--color-brand-light), #ffffff);
+    background-attachment: fixed;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-xl rounded-2xl;
+  }
+  
+  .glass-input {
+    @apply w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-secondary focus:border-transparent outline-none transition-all duration-200 backdrop-blur-sm text-brand-dark placeholder:text-gray-400;
+  }
+
+  .btn-primary {
+    @apply px-6 py-3 bg-gradient-to-r from-brand-primary to-brand-secondary text-white rounded-xl font-medium shadow-lg shadow-brand-primary/30 hover:shadow-brand-secondary/50 hover:-translate-y-0.5 transition-all duration-300;
+  }
+
+  .btn-danger {
+    @apply px-6 py-3 bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-xl font-medium shadow-lg shadow-red-600/30 hover:shadow-red-500/50 hover:-translate-y-0.5 transition-all duration-300 animate-pulse hover:animate-none;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}

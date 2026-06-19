@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>SafeReport — Admin</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 900px; margin: 40px auto; padding: 0 16px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+  th, td { text-align: left; padding: 8px; border-bottom: 1px solid #ddd; }
+  tr:hover { background: #f9f9f9; cursor: pointer; }
+  #detail { margin-top: 24px; padding: 16px; border: 1px solid #ccc; display: none; }
+  select, textarea { width: 100%; padding: 6px; margin: 6px 0; }
+</style>
+</head>
+<body>
+  <h1>Admin Dashboard</h1>
+  <p>Demo auth only — replace with real SSO before production. See Part 2 §2.4.</p>
+  <label>Admin Key</label>
+  <input id="adminKey" placeholder="demo-admin-key" />
+  <button onclick="loadCases()">Load Cases</button>
+
+  <table id="casesTable">
+    <thead><tr><th>Case ID</th><th>Category</th><th>Status</th><th>Updated</th></tr></thead>
+    <tbody></tbody>
+  </table>
+
+  <div id="detail">
+    <h2 id="detailCaseId"></h2>
+    <p id="detailDescription"></p>
+    <label>Status</label>
+    <select id="statusSelect">
+      <option>Submitted</option>
+      <option>Under Review</option>
+      <option>Investigation Active</option>
+      <option>Action Taken</option>
+      <option>Resolved</option>
+    </select>
+    <button onclick="updateStatus()">Update Status</button>
+
+    <h3>Messages</h3>
+    <div id="detailMessages"></div>
+    <textarea id="adminReply" rows="3" placeholder="Ask the reporter a question..."></textarea>
+    <button onclick="sendAdminMessage()">Send</button>
+  </div>
+
+<script>
+let currentCaseId = null;
+
+function adminKey() {
+  return document.getElementById('adminKey').value.trim() || 'demo-admin-key';
+}
+
+async function loadCases() {
+  const res = await fetch('/api/admin/reports', { headers: { 'x-admin-key': adminKey() } });
+  if (!res.ok) { alert('Unauthorized'); return; }
+  const cases = await res.json();
+  const tbody = document.querySelector('#casesTable tbody');
+  tbody.innerHTML = cases.map(c =>
+    `<tr onclick="openCase('${c.case_id}')">
+      <td>${c.case_id}</td><td>${c.category}</td><td>${c.status}</td><td>${new Date(c.updated_at).toLocaleString()}</td>
+    </tr>`
+  ).join('');
+}
+
+async function openCase(caseId) {
+  currentCaseId = caseId;
+  const res = await fetch(`/api/admin/reports/${caseId}`, { headers: { 'x-admin-key': adminKey() } });
+  const data = await res.json();
+  document.getElementById('detailCaseId').textContent = data.case_id;
+  document.getElementById('detailDescription').textContent = data.description;
+  document.getElementById('statusSelect').value = data.status;
+  document.getElementById('detailMessages').innerHTML = data.messages.map(m =>
+    `<p><strong>${m.sender}:</strong> ${m.body}</p>`
+  ).join('') || '<p>No messages yet.</p>';
+  document.getElementById('detail').style.display = 'block';
+}
+
+async function updateStatus() {
+  const status = document.getElementById('statusSelect').value;
+  await fetch(`/api/admin/reports/${currentCaseId}/status`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey() },
+    body: JSON.stringify({ status }),
+  });
+  loadCases();
+  openCase(currentCaseId);
+}
+
+async function sendAdminMessage() {
+  const body = document.getElementById('adminReply').value.trim();
+  if (!body) return;
+  await fetch(`/api/admin/reports/${currentCaseId}/messages`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey() },
+    body: JSON.stringify({ body }),
+  });
+  document.getElementById('adminReply').value = '';
+  openCase(currentCaseId);
+}
+</script>
+</body>
+</html>
