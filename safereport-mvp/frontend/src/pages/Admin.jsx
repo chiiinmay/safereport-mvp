@@ -8,6 +8,7 @@ function cn(...inputs) {
 }
 
 export default function Admin() {
+  const BASE = import.meta.env.VITE_API_URL || 'https://safereport-mvp.onrender.com';
   const [adminKey, setAdminKey] = useState(localStorage.getItem('safereport_admin_key') || '');
   const [role, setRole] = useState(localStorage.getItem('safereport_admin_role') || 'Department Head');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -33,7 +34,6 @@ export default function Admin() {
   const fetchData = async () => {
     setLoading(true);
     setError(null);
-    const BASE = import.meta.env.VITE_API_URL || 'https://safereport-mvp.onrender.com';
     try {
       const res = await fetch(`${BASE}/api/admin/reports`, {
         headers: { 'x-admin-key': adminKey, 'x-role': role }
@@ -60,7 +60,6 @@ export default function Admin() {
 
   const loadCaseDetails = async (caseId) => {
     setSelectedCase(caseId);
-    const BASE = import.meta.env.VITE_API_URL || 'https://safereport-mvp.onrender.com';
     try {
       const res = await fetch(`${BASE}/api/admin/reports/${caseId}`, {
         headers: { 'x-admin-key': adminKey, 'x-role': role }
@@ -75,7 +74,6 @@ export default function Admin() {
 
   const updateStatus = async (newStatus) => {
     try {
-      const BASE = import.meta.env.VITE_API_URL || 'https://safereport-mvp.onrender.com';
       const res = await fetch(`${BASE}/api/admin/reports/${selectedCase}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey, 'x-role': role },
@@ -92,7 +90,6 @@ export default function Admin() {
   const handleEscalate = async () => {
     if (!window.confirm("Are you sure you want to escalate this case?")) return;
     try {
-      const BASE = import.meta.env.VITE_API_URL || 'https://safereport-mvp.onrender.com';
       const res = await fetch(`${BASE}/api/admin/reports/${selectedCase}/escalate`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey, 'x-role': role }
@@ -109,7 +106,6 @@ export default function Admin() {
     e.preventDefault();
     if (!reply.trim()) return;
     try {
-      const BASE = import.meta.env.VITE_API_URL || 'https://safereport-mvp.onrender.com';
       const res = await fetch(`${BASE}/api/admin/reports/${selectedCase}/messages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey, 'x-role': role },
@@ -325,7 +321,7 @@ export default function Admin() {
                   </h4>
                   <div className="flex flex-wrap gap-2">
                     {caseDetails.attachments.map((file, i) => (
-                      <a key={i} href={file} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 hover:border-brand-primary rounded-lg text-xs text-brand-primary transition-colors shadow-sm">
+                      <a key={i} href={`${BASE}${file}`} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 hover:border-brand-primary rounded-lg text-xs text-brand-primary transition-colors shadow-sm">
                         <FileIcon size={14} />
                         Attachment {i + 1}
                       </a>
