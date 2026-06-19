@@ -19,7 +19,9 @@ CREATE TABLE IF NOT EXISTS reports (
   threat_score INTEGER DEFAULT 0,
   escalation_level INTEGER DEFAULT 0,
   escalated_to TEXT DEFAULT 'Department Head',
-  ai_chat_log TEXT
+  ai_chat_log TEXT,
+  ip_address TEXT,
+  coordinates TEXT
 );
 
 CREATE TABLE IF NOT EXISTS messages (
@@ -46,6 +48,8 @@ try { db.exec("ALTER TABLE reports ADD COLUMN threat_score INTEGER DEFAULT 0"); 
 try { db.exec("ALTER TABLE reports ADD COLUMN escalation_level INTEGER DEFAULT 0"); } catch (e) {}
 try { db.exec("ALTER TABLE reports ADD COLUMN escalated_to TEXT DEFAULT 'Department Head'"); } catch (e) {}
 try { db.exec("ALTER TABLE reports ADD COLUMN ai_chat_log TEXT"); } catch (e) {}
+try { db.exec("ALTER TABLE reports ADD COLUMN ip_address TEXT"); } catch (e) {}
+try { db.exec("ALTER TABLE reports ADD COLUMN coordinates TEXT"); } catch (e) {}
 
 // Token is hashed immediately — plaintext never touches the database
 function hashToken(token) {

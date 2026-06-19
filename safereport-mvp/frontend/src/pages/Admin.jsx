@@ -309,6 +309,30 @@ export default function Admin() {
                 </div>
               </div>
 
+              {/* Secure Audit Data (IP & GPS) */}
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+                  <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Filing IP Address</p>
+                  <p className="text-sm font-mono font-bold text-brand-dark mt-1">{caseDetails.ip_address || 'Not Logged'}</p>
+                </div>
+                <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Filing GPS Coordinates</p>
+                    <p className="text-sm font-mono font-bold text-brand-dark mt-1">{caseDetails.coordinates || 'Unknown'}</p>
+                  </div>
+                  {caseDetails.coordinates && caseDetails.coordinates !== 'Unknown' && (
+                    <a 
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(caseDetails.coordinates)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-xs bg-brand-primary/10 text-brand-primary font-bold px-2 py-1 rounded hover:bg-brand-primary hover:text-white transition-colors"
+                    >
+                      View Map
+                    </a>
+                  )}
+                </div>
+              </div>
+
               <div className="bg-white rounded-xl p-4 border border-gray-200 relative shadow-sm">
                 <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap font-mono">{caseDetails.description}</p>
               </div>

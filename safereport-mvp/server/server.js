@@ -82,7 +82,7 @@ function calculateThreatScore(category, description) {
 
 // --- Student: Submit a report (with files) ---
 app.post('/api/reports', submitLimiter, upload.array('files', 5), (req, res) => {
-  const { category, description, location, incident_date, ai_chat_log } = req.body;
+  const { category, description, location, incident_date, ai_chat_log, coordinates } = req.body;
   if (!category || !description) {
     return res.status(400).json({ error: 'category and description are required' });
   }
@@ -90,6 +90,7 @@ app.post('/api/reports', submitLimiter, upload.array('files', 5), (req, res) => 
   const caseId = generateCaseId();
   const token = generateSecretToken();
   const now = new Date().toISOString();
+  const ipAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
   
   // Handle files
   const attachments = req.files ? req.files.map(f => `/uploads/${f.filename}`) : [];
@@ -109,12 +110,14 @@ app.post('/api/reports', submitLimiter, upload.array('files', 5), (req, res) => 
   db.prepare(`
     INSERT INTO reports (
       case_id, token_hash, category, description, location, incident_date, 
-      status, created_at, updated_at, attachments, threat_score, escalation_level, escalated_to, ai_chat_log
+      status, created_at, updated_at, attachments, threat_score, escalation_level, escalated_to, ai_chat_log,
+      ip_address, coordinates
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     caseId, hashToken(token), category, description, location || null, incident_date || null, 
-    initialStatus, now, now, JSON.stringify(attachments), threatScore, escalationLevel, escalatedTo, ai_chat_log || null
+    initialStatus, now, now, JSON.stringify(attachments), threatScore, escalationLevel, escalatedTo, ai_chat_log || null,
+    ipAddress || null, coordinates || null
   );
 
   logAction(caseId, `Report submitted. Threat Score: ${threatScore}`, 'system');
@@ -125,6 +128,7 @@ app.post('/api/reports', submitLimiter, upload.array('files', 5), (req, res) => 
 // --- Student: Emergency SOS ---
 app.post('/api/sos', submitLimiter, (req, res) => {
   const { location, coordinates } = req.body;
+  const ipAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
   
   const caseId = generateCaseId();
   const token = generateSecretToken();
@@ -134,12 +138,14 @@ app.post('/api/sos', submitLimiter, (req, res) => {
   db.prepare(`
     INSERT INTO reports (
       case_id, token_hash, category, description, location, incident_date, 
-      status, created_at, updated_at, attachments, threat_score, escalation_level, escalated_to, ai_chat_log
+      status, created_at, updated_at, attachments, threat_score, escalation_level, escalated_to, ai_chat_log,
+      ip_address, coordinates
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     caseId, hashToken(token), 'Emergency', desc, location || null, now, 
-    'Investigation Active', now, now, '[]', 100, 2, 'Police / Security', null
+    'Investigation Active', now, now, '[]', 100, 2, 'Police / Security', null,
+    ipAddress || null, coordinates || null
   );
 
   logAction(caseId, 'SOS Emergency Triggered', 'system');

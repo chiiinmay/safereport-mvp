@@ -14,6 +14,18 @@ export default function Submit() {
     setError(null);
     const formData = new FormData(e.target);
     
+    // Attempt to capture GPS coordinates for audit/validation
+    let coords = 'Unknown';
+    try {
+      const position = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
+      });
+      coords = `${position.coords.latitude.toFixed(6)}, ${position.coords.longitude.toFixed(6)}`;
+    } catch (err) {
+      console.warn("Could not retrieve GPS coordinates:", err);
+    }
+    formData.append('coordinates', coords);
+
     // Append AI chat log if exists
     const aiChatLog = localStorage.getItem('safereport_ai_chat');
     if (aiChatLog) {

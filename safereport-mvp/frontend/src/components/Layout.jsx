@@ -19,17 +19,30 @@ export default function Layout() {
   const handleSos = async () => {
     if (!window.confirm("CRITICAL WARNING: This will immediately dispatch campus security. Are you sure?")) return;
     setIsSosLoading(true);
+    
+    let coords = 'Unknown';
     try {
-      // Mock geolocation
-      const res = await fetch('/api/sos', {
+      const position = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 8000 });
+      });
+      coords = `${position.coords.latitude.toFixed(6)}, ${position.coords.longitude.toFixed(6)}`;
+    } catch (err) {
+      console.warn("Could not retrieve GPS coordinates:", err);
+    }
+
+    const BASE = import.meta.env.VITE_API_URL || 'https://safereport-mvp.onrender.com';
+    try {
+      const res = await fetch(`${BASE}/api/sos`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ location: 'Campus Grounds', coordinates: '12.82, 77.50' })
+        body: JSON.stringify({ location: 'Campus Grounds', coordinates: coords })
       });
       const data = await res.json();
       if (res.ok) {
         alert("EMERGENCY TRIGGERED. Security is on the way. Your Case ID is: " + data.caseId);
         navigate(`/track?case=${data.caseId}`);
+      } else {
+        throw new Error(data.error || 'Server error');
       }
     } catch (e) {
       alert("Failed to send SOS. Please call emergency services directly.");
