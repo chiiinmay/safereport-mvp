@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Lock, Search, RefreshCw, AlertCircle, MessageSquare, Clock, ShieldAlert, FileIcon, TrendingUp, BarChart3, AlertTriangle, Bot } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { motion } from 'framer-motion';
 
 function cn(...inputs) {
   return twMerge(clsx(inputs));
@@ -125,21 +126,26 @@ export default function Admin() {
 
   if (!isAuthenticated) {
     return (
-      <div className="max-w-md mx-auto mt-20 animate-fade-in">
-        <div className="glass-card p-8 text-center border-gray-200 shadow-xl">
-          <div className="w-16 h-16 bg-blue-50 border-2 border-brand-primary/20 rounded-2xl flex items-center justify-center mx-auto mb-6 text-brand-primary">
-            <Lock size={32} />
+      <motion.div
+        className="max-w-md mx-auto mt-20"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
+      >
+        <div className="glass-card p-6 sm:p-8 text-center shadow-sm">
+          <div className="w-14 h-14 bg-blue-50 border border-brand-primary/20 rounded-2xl flex items-center justify-center mx-auto mb-5 text-brand-primary">
+            <Lock size={28} />
           </div>
-          <h2 className="text-2xl font-bold text-brand-dark mb-2">Secure Command Center</h2>
-          <p className="text-gray-500 mb-8 text-sm">Authorized personnel only. All access is logged.</p>
+          <h2 className="text-2xl font-bold text-brand-dark mb-2" style={{ fontFamily: 'var(--font-heading)' }}>Secure Command Center</h2>
+          <p className="text-slate-500 mb-6 text-sm">Authorized personnel only. All access is logged.</p>
           
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 text-left">Access Role</label>
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 text-left">Access Role</label>
               <select 
                 value={role} 
                 onChange={(e) => setRole(e.target.value)}
-                className="glass-input cursor-pointer mb-4"
+                className="glass-input cursor-pointer mb-3"
               >
                 <option value="Department Head">Department Head (Level 0)</option>
                 <option value="Committee">Anti-Harassment Committee (Level 1)</option>
@@ -147,7 +153,7 @@ export default function Admin() {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 text-left">Authentication Key</label>
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 text-left">Authentication Key</label>
               <input 
                 type="password" 
                 value={adminKey}
@@ -157,30 +163,35 @@ export default function Admin() {
                 required
               />
             </div>
-            <button type="submit" className="btn-primary w-full shadow-lg">Initialize Session</button>
+            <button type="submit" className="btn-primary w-full">Initialize Session</button>
           </form>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   return (
-    <div className="grid lg:grid-cols-3 gap-8 h-[calc(100vh-140px)] animate-fade-in">
+    <motion.div
+      className="grid lg:grid-cols-3 gap-6 h-[calc(100vh-140px)]"
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: 'easeOut' }}
+    >
       {/* Left Column: Case List */}
-      <div className="lg:col-span-1 glass-card flex flex-col overflow-hidden border-gray-200">
-        <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-gray-50">
+      <div className="lg:col-span-1 glass-card flex flex-col overflow-hidden">
+        <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
           <div>
-            <h3 className="font-bold text-brand-dark flex items-center gap-2">
-              <Search size={18} className="text-brand-primary" />
+            <h3 className="font-bold text-brand-dark flex items-center gap-2 text-sm" style={{ fontFamily: 'var(--font-heading)' }}>
+              <Search size={16} className="text-brand-primary" />
               Active Cases
             </h3>
             <p className="text-[10px] uppercase font-bold text-brand-primary mt-1 tracking-widest">Role: {role}</p>
           </div>
-          <button onClick={fetchData} className="text-gray-400 hover:text-brand-primary transition-colors">
-            <RefreshCw size={18} className={loading ? 'animate-spin text-brand-primary' : ''} />
+          <button onClick={fetchData} className="text-slate-400 hover:text-brand-primary transition-colors">
+            <RefreshCw size={16} className={loading ? 'animate-spin text-brand-primary' : ''} />
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-white custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-3 space-y-2 bg-white custom-scrollbar">
           {cases.map(c => {
             const isHighThreat = c.threat_score >= 75;
             return (
@@ -188,26 +199,26 @@ export default function Admin() {
                 key={c.case_id}
                 onClick={() => loadCaseDetails(c.case_id)}
                 className={cn(
-                  "w-full text-left p-4 rounded-xl border transition-all relative overflow-hidden group",
+                  "w-full text-left p-3.5 rounded-xl border transition-all relative overflow-hidden",
                   selectedCase === c.case_id 
-                    ? "bg-blue-50 border-brand-primary/50 shadow-sm" 
+                    ? "bg-blue-50 border-brand-primary/30 shadow-sm" 
                     : isHighThreat 
-                      ? "bg-red-50 border-red-200 hover:bg-red-100"
-                      : "bg-white border-gray-200 hover:bg-gray-50"
+                      ? "bg-red-50 border-red-200 hover:bg-red-100/80"
+                      : "bg-white border-slate-200 hover:bg-slate-50"
                 )}
               >
-                {isHighThreat && <div className="absolute top-0 left-0 w-1 h-full bg-red-500 animate-pulse"></div>}
+                {isHighThreat && <div className="absolute top-0 left-0 w-0.5 h-full bg-red-500"></div>}
                 <div className="flex justify-between items-start mb-2">
-                  <span className={cn("font-mono text-sm font-bold", isHighThreat ? "text-red-600" : "text-brand-dark")}>
+                  <span className={cn("font-mono text-xs font-bold", isHighThreat ? "text-red-600" : "text-brand-dark")}>
                     {c.case_id}
                   </span>
-                  <span className="text-[10px] px-2 py-1 rounded-md bg-gray-100 text-gray-500 font-bold border border-gray-200">
+                  <span className="text-[10px] px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 font-medium border border-slate-200">
                     {new Date(c.updated_at).toLocaleDateString()}
                   </span>
                 </div>
-                <div className="font-medium text-gray-700 text-sm truncate">{c.category}</div>
-                <div className="flex justify-between items-center mt-3">
-                  <div className="text-[10px] text-brand-primary font-bold uppercase tracking-wider bg-blue-100 px-2 py-1 rounded border border-blue-200">
+                <div className="font-medium text-slate-700 text-sm truncate">{c.category}</div>
+                <div className="flex justify-between items-center mt-2">
+                  <div className="text-[10px] text-brand-primary font-bold uppercase tracking-wider bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
                     {c.status}
                   </div>
                   {isHighThreat && <ShieldAlert size={14} className="text-red-500" />}
@@ -216,42 +227,42 @@ export default function Admin() {
             )
           })}
           {cases.length === 0 && !loading && (
-            <div className="text-center p-8 text-gray-500 text-sm">No cases accessible at this level.</div>
+            <div className="text-center p-8 text-slate-500 text-sm">No cases accessible at this level.</div>
           )}
         </div>
       </div>
 
       {/* Right Column: Details OR Analytics */}
-      <div className="lg:col-span-2 glass-card flex flex-col overflow-hidden border-gray-200 relative">
+      <div className="lg:col-span-2 glass-card flex flex-col overflow-hidden relative">
         {!caseDetails ? (
-          <div className="flex-1 overflow-y-auto p-8 bg-gray-50">
-            <h2 className="text-2xl font-bold text-brand-dark mb-6 flex items-center gap-3">
-              <BarChart3 className="text-brand-primary" />
+          <div className="flex-1 overflow-y-auto p-6 sm:p-8 bg-slate-50">
+            <h2 className="text-xl sm:text-2xl font-bold text-brand-dark mb-6 flex items-center gap-3" style={{ fontFamily: 'var(--font-heading)' }}>
+              <BarChart3 className="text-brand-primary" size={22} />
               Trend Analytics Dashboard
             </h2>
             
-            <div className="grid grid-cols-2 gap-6 mb-8">
-              <div className="bg-white border border-gray-200 p-6 rounded-2xl shadow-sm">
-                <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">Total Reports</h3>
-                <p className="text-5xl font-bold text-brand-primary">{cases.length}</p>
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm">
+                <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Total Reports</h3>
+                <p className="text-4xl font-bold text-brand-primary" style={{ fontFamily: 'var(--font-heading)' }}>{cases.length}</p>
               </div>
-              <div className="bg-red-50 border border-red-200 p-6 rounded-2xl shadow-sm">
-                <h3 className="text-sm font-bold text-red-500 uppercase tracking-wider mb-4">High Threat Cases</h3>
-                <p className="text-5xl font-bold text-red-600">{cases.filter(c => c.threat_score >= 75).length}</p>
+              <div className="bg-red-50 border border-red-200 p-5 rounded-2xl shadow-sm">
+                <h3 className="text-xs font-bold text-red-500 uppercase tracking-wider mb-3">High Threat Cases</h3>
+                <p className="text-4xl font-bold text-red-600" style={{ fontFamily: 'var(--font-heading)' }}>{cases.filter(c => c.threat_score >= 75).length}</p>
               </div>
             </div>
 
-            <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4 border-b border-gray-200 pb-2">Reports by Category</h3>
-            <div className="space-y-4">
+            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 border-b border-slate-200 pb-2">Reports by Category</h3>
+            <div className="space-y-3">
               {analytics.categories.map((c, i) => {
                 const percentage = Math.round((c.count / cases.length) * 100) || 0;
                 return (
                   <div key={i} className="flex items-center gap-4">
-                    <div className="w-48 text-sm text-gray-600 truncate">{c.category}</div>
-                    <div className="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden">
-                      <div className="h-full bg-brand-primary" style={{ width: `${percentage}%` }}></div>
+                    <div className="w-40 text-sm text-slate-600 truncate">{c.category}</div>
+                    <div className="flex-1 h-2.5 bg-slate-200 rounded-full overflow-hidden">
+                      <div className="h-full bg-brand-primary rounded-full transition-all duration-500" style={{ width: `${percentage}%` }}></div>
                     </div>
-                    <div className="w-12 text-right text-sm font-bold text-gray-500">{c.count}</div>
+                    <div className="w-10 text-right text-sm font-bold text-slate-500">{c.count}</div>
                   </div>
                 );
               })}
@@ -260,30 +271,30 @@ export default function Admin() {
         ) : (
           <>
             {/* Case Header */}
-            <div className="p-6 border-b border-gray-200 bg-gray-50">
+            <div className="p-5 sm:p-6 border-b border-slate-200 bg-slate-50">
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h2 className="text-2xl font-bold font-mono text-brand-dark flex items-center gap-3">
+                  <h2 className="text-xl sm:text-2xl font-bold font-mono text-brand-dark flex items-center gap-3">
                     {caseDetails.case_id}
                     {caseDetails.threat_score >= 75 && (
-                      <span className="text-[10px] bg-red-100 text-red-600 border border-red-200 px-2 py-1 rounded-full flex items-center gap-1 uppercase tracking-widest font-sans">
+                      <span className="text-[10px] bg-red-50 text-red-600 border border-red-200 px-2 py-1 rounded-full flex items-center gap-1 uppercase tracking-widest font-sans">
                         <AlertTriangle size={12} /> High Threat
                       </span>
                     )}
                   </h2>
-                  <p className="text-gray-500 font-medium mt-1 text-sm">{caseDetails.category}</p>
+                  <p className="text-slate-500 font-medium mt-1 text-sm">{caseDetails.category}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <button 
                     onClick={handleEscalate}
-                    className="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold px-3 py-2 rounded-lg border border-orange-600 transition-colors shadow-sm"
+                    className="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold px-3 py-2 rounded-lg transition-colors shadow-sm"
                   >
                     ESCALATE ↑
                   </button>
                   <select 
                     value={caseDetails.status}
                     onChange={(e) => updateStatus(e.target.value)}
-                    className="bg-white border border-gray-300 text-brand-dark text-sm font-bold rounded-lg px-4 py-2 focus:ring-2 focus:ring-brand-primary outline-none cursor-pointer"
+                    className="bg-white border border-slate-200 text-brand-dark text-sm font-bold rounded-lg px-3 py-2 focus:ring-2 focus:ring-brand-primary/30 outline-none cursor-pointer"
                   >
                     <option>Submitted</option>
                     <option>Under Review</option>
@@ -294,30 +305,30 @@ export default function Admin() {
                 </div>
               </div>
               
-              <div className="grid grid-cols-4 gap-4 mb-4">
-                <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
-                  <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Threat Score</p>
-                  <p className={cn("text-xl font-bold", caseDetails.threat_score >= 75 ? "text-red-600" : "text-brand-primary")}>{caseDetails.threat_score}/100</p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+                <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Threat Score</p>
+                  <p className={cn("text-lg font-bold", caseDetails.threat_score >= 75 ? "text-red-600" : "text-brand-primary")}>{caseDetails.threat_score}/100</p>
                 </div>
-                <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm col-span-2">
-                  <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Current Escalation Level</p>
+                <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm col-span-2 sm:col-span-2">
+                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Current Escalation Level</p>
                   <p className="text-sm font-bold text-brand-dark mt-1">{caseDetails.escalated_to} (Level {caseDetails.escalation_level})</p>
                 </div>
-                <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
-                  <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Date</p>
+                <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Date</p>
                   <p className="text-sm font-bold text-brand-dark mt-1">{caseDetails.incident_date || 'Unknown'}</p>
                 </div>
               </div>
 
               {/* Secure Audit Data (IP & GPS) */}
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
-                  <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Filing IP Address</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Filing IP Address</p>
                   <p className="text-sm font-mono font-bold text-brand-dark mt-1">{caseDetails.ip_address || 'Not Logged'}</p>
                 </div>
-                <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm flex items-center justify-between">
+                <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm flex items-center justify-between">
                   <div>
-                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Filing GPS Coordinates</p>
+                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Filing GPS Coordinates</p>
                     <p className="text-sm font-mono font-bold text-brand-dark mt-1">{caseDetails.coordinates || 'Unknown'}</p>
                   </div>
                   {caseDetails.coordinates && caseDetails.coordinates !== 'Unknown' && (
@@ -333,19 +344,19 @@ export default function Admin() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl p-4 border border-gray-200 relative shadow-sm">
-                <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap font-mono">{caseDetails.description}</p>
+              <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
+                <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap font-mono">{caseDetails.description}</p>
               </div>
 
               {/* Evidence Vault */}
               {caseDetails.attachments && caseDetails.attachments.length > 0 && (
                 <div className="mt-4">
-                  <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-2">
+                  <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-2">
                     <FileIcon size={14} /> Evidence Vault
                   </h4>
                   <div className="flex flex-wrap gap-2">
                     {caseDetails.attachments.map((file, i) => (
-                      <a key={i} href={`${BASE}${file}`} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 hover:border-brand-primary rounded-lg text-xs text-brand-primary transition-colors shadow-sm">
+                      <a key={i} href={`${BASE}${file}`} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 hover:border-brand-primary rounded-lg text-xs text-brand-primary transition-colors shadow-sm">
                         <FileIcon size={14} />
                         Attachment {i + 1}
                       </a>
@@ -356,21 +367,21 @@ export default function Admin() {
 
               {/* AI Chat Transcript */}
               {caseDetails.ai_chat_log && caseDetails.ai_chat_log.length > 1 && (
-                <div className="mt-6">
-                  <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                <div className="mt-5">
+                  <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
                     <Bot size={14} /> Pre-Submission AI Chat Transcript
                   </h4>
-                  <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 max-h-[300px] overflow-y-auto space-y-3 custom-scrollbar shadow-inner">
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 max-h-[280px] overflow-y-auto space-y-3 custom-scrollbar">
                     {caseDetails.ai_chat_log.map((m, i) => (
                       <div key={i} className={cn("flex flex-col max-w-[90%]", m.role === 'user' ? "ml-auto items-end" : "mr-auto items-start")}>
-                        <span className="text-[10px] text-gray-400 font-bold tracking-wider mb-1 px-1 uppercase">
+                        <span className="text-[10px] text-slate-400 font-bold tracking-wider mb-1 px-1 uppercase">
                           {m.role === 'user' ? 'Anonymous Reporter' : 'AI Guardian'}
                         </span>
                         <div className={cn(
                           "px-3 py-2 rounded-xl text-xs shadow-sm",
                           m.role === 'user' 
                             ? "bg-brand-primary text-white rounded-tr-none" 
-                            : "bg-white border border-gray-200 text-gray-700 rounded-tl-none"
+                            : "bg-white border border-slate-200 text-slate-700 rounded-tl-none"
                         )}>
                           {m.text}
                         </div>
@@ -382,17 +393,17 @@ export default function Admin() {
             </div>
 
             {/* Chat Area */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-white custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3 bg-white custom-scrollbar">
               {caseDetails.messages.map((m, i) => (
                 <div key={i} className={cn("flex flex-col max-w-[80%]", m.sender === 'admin' ? "ml-auto items-end" : "mr-auto items-start")}>
-                  <span className="text-[10px] text-gray-500 font-bold tracking-wider mb-1 px-1 uppercase">
+                  <span className="text-[10px] text-slate-500 font-bold tracking-wider mb-1 px-1 uppercase">
                     {m.sender === 'admin' ? 'Security Staff' : 'Anonymous Reporter'} • {new Date(m.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                   </span>
                   <div className={cn(
-                    "px-4 py-3 rounded-2xl text-sm shadow-sm",
+                    "px-4 py-2.5 rounded-2xl text-sm shadow-sm",
                     m.sender === 'admin' 
-                      ? "bg-brand-primary text-white rounded-tr-none border border-brand-primary/50" 
-                      : "bg-gray-100 border border-gray-200 text-gray-800 rounded-tl-none"
+                      ? "bg-brand-primary text-white rounded-tr-none" 
+                      : "bg-slate-100 border border-slate-200 text-slate-800 rounded-tl-none"
                   )}>
                     {m.body}
                   </div>
@@ -401,27 +412,27 @@ export default function Admin() {
             </div>
 
             {/* Chat Input */}
-            <div className="p-4 bg-gray-50 border-t border-gray-200">
+            <div className="p-3 sm:p-4 bg-slate-50 border-t border-slate-200">
               <form onSubmit={sendReply} className="flex gap-2">
                 <input
                   type="text"
                   value={reply}
                   onChange={(e) => setReply(e.target.value)}
                   placeholder="Send an encrypted message to the reporter..."
-                  className="flex-1 px-4 py-3 bg-white border border-gray-300 text-brand-dark rounded-xl focus:bg-white focus:ring-2 focus:ring-brand-primary outline-none transition-all placeholder:text-gray-400"
+                  className="flex-1 px-4 py-2.5 bg-white border border-slate-200 text-brand-dark rounded-xl focus:bg-white focus:ring-2 focus:ring-brand-primary/30 outline-none transition-all placeholder:text-slate-400 text-sm"
                 />
                 <button 
                   type="submit" 
                   disabled={!reply.trim()} 
-                  className="bg-brand-primary border border-brand-primary/50 text-white px-6 py-3 font-bold rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-brand-primary text-white px-5 py-2.5 font-bold rounded-xl hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <MessageSquare size={20} />
+                  <MessageSquare size={18} />
                 </button>
               </form>
             </div>
           </>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }

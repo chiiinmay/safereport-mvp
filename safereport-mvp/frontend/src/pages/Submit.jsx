@@ -1,12 +1,16 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Send, AlertCircle, CheckCircle2, Copy, Check, ShieldAlert, FileText, ArrowRight, Upload, Lock } from 'lucide-react';
+import { Send, AlertCircle, CheckCircle2, Copy, Check, FileText, ArrowRight, Upload, Lock } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { useLang } from '../i18n/LanguageContext';
 
 export default function Submit() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [copiedField, setCopiedField] = useState(null);
+  const [selectedFileCount, setSelectedFileCount] = useState(0);
+  const { t } = useLang();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -60,144 +64,161 @@ export default function Submit() {
 
   if (result) {
     return (
-      <div className="max-w-2xl mx-auto mt-8 animate-fade-in">
-        <div className="glass-card p-8 md:p-12 text-center space-y-6 border-green-200/50 relative overflow-hidden">
-          <div className="relative w-20 h-20 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 text-white shadow-xl shadow-green-500/30">
-            <CheckCircle2 size={40} />
+      <motion.div
+        className="max-w-2xl mx-auto mt-8"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
+      >
+        <div className="glass-card p-6 sm:p-8 md:p-10 text-center space-y-5">
+          <div className="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto text-emerald-600">
+            <CheckCircle2 size={32} />
           </div>
-          <h2 className="relative text-3xl font-bold text-brand-dark">Encrypted & Submitted</h2>
-          <p className="relative text-gray-600">Your report has been securely vaulted with AES-256 encryption.</p>
+          <h2 className="text-2xl sm:text-3xl font-bold text-brand-dark" style={{ fontFamily: 'var(--font-heading)' }}>
+            {t('submit.successTitle')}
+          </h2>
+          <p className="text-slate-600 text-sm sm:text-base">{t('submit.successDesc')}</p>
           
           {result.threatScore > 50 && (
-            <div className="relative bg-red-50 border border-red-200 p-4 rounded-xl text-red-700 text-sm mt-4">
-              <span className="font-bold">⚠️ High Priority Alert Generated.</span> The system has flagged this report for immediate administrative review.
+            <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl text-amber-800 text-sm mt-4">
+              <span className="font-bold">⚠️ {t('submit.highPriority')}</span> {t('submit.highPriorityDesc')}
             </div>
           )}
           
-          <div className="relative bg-white rounded-2xl p-6 border-2 border-red-200 shadow-sm mt-8 space-y-6 text-left">
-            <div className="flex items-start gap-3 text-red-600 bg-red-50 p-4 rounded-xl border border-red-100">
-              <AlertCircle className="shrink-0 mt-0.5" />
+          <div className="bg-white rounded-2xl p-5 sm:p-6 border-2 border-amber-200 shadow-sm mt-6 space-y-5 text-left">
+            <div className="flex items-start gap-3 text-amber-700 bg-amber-50 p-4 rounded-xl border border-amber-100">
+              <AlertCircle className="shrink-0 mt-0.5" size={20} />
               <p className="text-sm font-semibold">
-                ⚠️ CRITICAL: Write these down immediately! They are the ONLY way to check your report status and chat with the committee. They will NEVER be shown again.
+                {t('submit.credentialsWarning')}
               </p>
             </div>
             
             <div>
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Case ID</label>
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">{t('submit.caseIdLabel')}</label>
               <div className="flex items-center gap-3">
-                <code className="flex-1 bg-gray-50 px-4 py-3 rounded-lg border border-gray-200 text-lg font-mono text-brand-dark select-all">
+                <code className="flex-1 bg-slate-50 px-4 py-3 rounded-lg border border-slate-200 text-base sm:text-lg font-mono text-brand-dark select-all">
                   {result.caseId}
                 </code>
                 <button 
                   onClick={() => copyToClipboard(result.caseId, 'caseId')} 
-                  className="p-3 text-gray-500 hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
+                  className="p-3 text-slate-400 hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
                   title="Copy Case ID"
                 >
-                  {copiedField === 'caseId' ? <Check size={20} className="text-green-500" /> : <Copy size={20} />}
+                  {copiedField === 'caseId' ? <Check size={20} className="text-emerald-500" /> : <Copy size={20} />}
                 </button>
               </div>
             </div>
 
             <div>
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Secret Token</label>
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 block">{t('submit.tokenLabel')}</label>
               <div className="flex items-center gap-3">
-                <code className="flex-1 bg-gray-50 px-4 py-3 rounded-lg border border-gray-200 text-lg font-mono text-brand-dark select-all">
+                <code className="flex-1 bg-slate-50 px-4 py-3 rounded-lg border border-slate-200 text-base sm:text-lg font-mono text-brand-dark select-all">
                   {result.token}
                 </code>
                 <button 
                   onClick={() => copyToClipboard(result.token, 'token')} 
-                  className="p-3 text-gray-500 hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
+                  className="p-3 text-slate-400 hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
                   title="Copy Secret Token"
                 >
-                  {copiedField === 'token' ? <Check size={20} className="text-green-500" /> : <Copy size={20} />}
+                  {copiedField === 'token' ? <Check size={20} className="text-emerald-500" /> : <Copy size={20} />}
                 </button>
               </div>
             </div>
           </div>
 
-          <div className="pt-8 space-y-3">
+          <div className="pt-6 space-y-3">
             <Link to={`/track?case=${result.caseId}`} className="btn-primary w-full inline-flex items-center justify-center gap-2 group">
-              Proceed to Status Tracker
-              <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+              {t('submit.proceedTracker')}
+              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
             </Link>
             <button 
-              onClick={() => { setResult(null); setError(null); }} 
-              className="w-full px-6 py-3 text-gray-500 hover:text-brand-dark hover:bg-gray-100 rounded-xl transition-all text-sm font-medium border border-transparent"
+              onClick={() => { setResult(null); setError(null); setSelectedFileCount(0); }} 
+              className="w-full px-6 py-3 text-slate-500 hover:text-brand-dark hover:bg-slate-100 rounded-xl transition-all text-sm font-medium"
             >
-              Submit Another Report
+              {t('submit.submitAnother')}
             </button>
           </div>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   return (
-    <div className="max-w-3xl mx-auto mt-4 animate-fade-in relative z-10">
-      <div className="mb-8 flex items-start gap-4">
-        <div className="w-14 h-14 bg-gradient-to-br from-brand-primary to-brand-secondary rounded-xl flex items-center justify-center text-white shadow-lg shadow-brand-primary/20 shrink-0">
-          <FileText size={28} />
+    <motion.div
+      className="max-w-3xl mx-auto mt-4 relative z-10"
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
+    >
+      <div className="mb-6 flex items-start gap-4">
+        <div className="w-12 h-12 bg-brand-primary rounded-xl flex items-center justify-center text-white shadow-sm shrink-0">
+          <FileText size={24} />
         </div>
         <div>
-          <h1 className="text-3xl font-bold text-brand-dark">File an Encrypted Report</h1>
-          <p className="text-gray-600 mt-1">No login required. Your connection is fully encrypted.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-brand-dark" style={{ fontFamily: 'var(--font-heading)' }}>
+            {t('submit.title')}
+          </h1>
+          <p className="text-slate-600 mt-1 text-sm sm:text-base">{t('submit.subtitle')}</p>
         </div>
       </div>
 
       {/* Security Notice */}
-      <div className="mb-8 p-4 bg-blue-50 border border-blue-100 rounded-xl flex items-start gap-3 text-blue-800 shadow-inner">
-        <Lock size={20} className="shrink-0 mt-0.5" />
+      <div className="mb-6 p-4 bg-blue-50 border border-blue-100 rounded-xl flex items-start gap-3 text-blue-800">
+        <Lock size={18} className="shrink-0 mt-0.5" />
         <p className="text-sm">
-          <strong>End-to-End Protection Enabled.</strong> We do not log IP addresses or browser fingerprints.
-          All communications pass through a secure tunnel and are cryptographically hashed.
+          <strong>{t('submit.securityTitle')}</strong> {t('submit.securityDesc')}
         </p>
       </div>
 
       {error && (
-        <div className="mb-8 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl flex items-center gap-3">
-          <AlertCircle size={20} />
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl flex items-center gap-3 text-sm">
+          <AlertCircle size={18} />
           {error}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="glass-card p-6 md:p-10 space-y-6">
+      <form onSubmit={handleSubmit} className="glass-card p-5 sm:p-6 md:p-8 space-y-5">
         <div>
-          <label className="block text-sm font-semibold text-brand-dark mb-2">Category <span className="text-red-500">*</span></label>
+          <label className="block text-sm font-semibold text-brand-dark mb-2">
+            {t('submit.categoryLabel')} <span className="text-red-500">*</span>
+          </label>
           <select name="category" required className="glass-input cursor-pointer">
-            <option value="">Select a category...</option>
-            <option value="Sexual Harassment">Sexual Harassment</option>
-            <option value="Ragging">Ragging</option>
-            <option value="Bullying">Bullying / Cyberbullying</option>
-            <option value="Discrimination">Discrimination</option>
-            <option value="Safety Hazard">Campus Safety Hazard</option>
-            <option value="Other">Other</option>
+            <option value="">{t('submit.categoryPlaceholder')}</option>
+            <option value="Sexual Harassment">{t('submit.catSexualHarassment')}</option>
+            <option value="Ragging">{t('submit.catRagging')}</option>
+            <option value="Bullying">{t('submit.catBullying')}</option>
+            <option value="Discrimination">{t('submit.catDiscrimination')}</option>
+            <option value="Safety Hazard">{t('submit.catSafety')}</option>
+            <option value="Other">{t('submit.catOther')}</option>
           </select>
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-brand-dark mb-2">Incident Details <span className="text-red-500">*</span></label>
-          <p className="text-xs text-gray-500 mb-3">Provide as much detail as possible. Our AI engine will analyze this to prioritize emergency response.</p>
+          <label className="block text-sm font-semibold text-brand-dark mb-2">
+            {t('submit.detailsLabel')} <span className="text-red-500">*</span>
+          </label>
+          <p className="text-xs text-slate-500 mb-2">{t('submit.detailsHint')}</p>
           <textarea 
             name="description" 
             required 
             rows="6" 
             className="glass-input resize-y"
-            placeholder="Describe the incident in detail — what happened, when, where, and who was involved..."
+            placeholder={t('submit.detailsPlaceholder')}
           ></textarea>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-semibold text-brand-dark mb-2">Location (Optional)</label>
+            <label className="block text-sm font-semibold text-brand-dark mb-2">{t('submit.locationLabel')}</label>
             <input 
               type="text" 
               name="location" 
               className="glass-input" 
-              placeholder="e.g. Hostel Block C, 2nd floor" 
+              placeholder={t('submit.locationPlaceholder')}
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-brand-dark mb-2">Date of Incident (Optional)</label>
+            <label className="block text-sm font-semibold text-brand-dark mb-2">{t('submit.dateLabel')}</label>
             <input 
               type="date" 
               name="incident_date" 
@@ -206,10 +227,10 @@ export default function Submit() {
           </div>
         </div>
 
-        <div className="bg-gray-50 border border-gray-200 border-dashed rounded-xl p-6 text-center hover:bg-gray-100 transition-colors">
-          <Upload className="mx-auto text-gray-400 mb-3" size={28} />
+        <div className="bg-slate-50 border border-slate-200 border-dashed rounded-xl p-5 text-center hover:bg-slate-100 transition-colors">
+          <Upload className="mx-auto text-slate-400 mb-2" size={24} />
           <label className="block text-sm font-semibold text-brand-dark mb-2 cursor-pointer">
-            Evidence Vault (Upload Files)
+            {t('submit.uploadTitle')}
             <input 
               type="file" 
               name="files" 
@@ -217,44 +238,43 @@ export default function Submit() {
               accept=".pdf,.png,.jpg,.jpeg,.mp4,.m4a"
               className="hidden" 
               onChange={(e) => {
-                const el = document.getElementById('file-count');
-                if (el) el.innerText = e.target.files.length > 0 ? `${e.target.files.length} file(s) selected` : 'No files selected';
+                setSelectedFileCount(e.target.files.length);
               }}
             />
-            <div className="mt-2 inline-block px-4 py-2 bg-white border border-gray-300 rounded-lg text-brand-primary text-xs font-mono hover:bg-gray-50 transition-colors">
-              Browse Files
+            <div className="mt-2 inline-block px-4 py-2 bg-white border border-slate-200 rounded-lg text-brand-primary text-xs font-mono hover:bg-slate-50 transition-colors">
+              {t('submit.uploadBrowse')}
             </div>
           </label>
-          <p id="file-count" className="text-xs text-gray-500 mt-2">Max 5 files (Images, PDFs, Audio, Video)</p>
+          <p className="text-xs text-slate-500 mt-2">
+            {selectedFileCount > 0 
+              ? `${selectedFileCount} ${t('submit.filesSelected')}` 
+              : t('submit.uploadHint')}
+          </p>
         </div>
 
-        <div className="pt-6 border-t border-gray-200">
+        <div className="pt-4 border-t border-slate-200">
           <button 
             type="submit" 
             disabled={loading}
-            className="btn-primary w-full flex items-center justify-center gap-2 text-lg disabled:opacity-60 disabled:cursor-not-allowed group relative overflow-hidden"
+            className="btn-primary w-full flex items-center justify-center gap-2 text-base disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {loading && (
-              <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
-            )}
             {loading ? (
               <>
                 <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
-                <Lock size={20} className="animate-pulse" />
-                Encrypting & Submitting...
+                {t('submit.submitting')}
               </>
             ) : (
               <>
-                <Send size={20} />
-                Submit Report Securely
+                <Send size={18} />
+                {t('submit.submitBtn')}
               </>
             )}
           </button>
         </div>
       </form>
-    </div>
+    </motion.div>
   );
 }

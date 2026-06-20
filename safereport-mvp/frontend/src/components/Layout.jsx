@@ -3,7 +3,9 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Shield, Home, Send, Activity, Lock, Menu, X, AlertTriangle, Globe, MessageCircle } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { motion, AnimatePresence } from 'framer-motion';
 import AIAssistant from './AIAssistant';
+import { useLang } from '../i18n/LanguageContext';
 
 function cn(...inputs) {
   return twMerge(clsx(inputs));
@@ -13,11 +15,11 @@ export default function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [lang, setLang] = useState('EN');
+  const { lang, toggleLang, t } = useLang();
   const [isSosLoading, setIsSosLoading] = useState(false);
 
   const handleSos = async () => {
-    if (!window.confirm("CRITICAL WARNING: This will immediately dispatch campus security. Are you sure?")) return;
+    if (!window.confirm(t('nav.sosConfirm'))) return;
     setIsSosLoading(true);
     
     let coords = 'Unknown';
@@ -39,47 +41,47 @@ export default function Layout() {
       });
       const data = await res.json();
       if (res.ok) {
-        alert("EMERGENCY TRIGGERED. Security is on the way. Your Case ID is: " + data.caseId);
+        alert(t('nav.sosTriggered') + data.caseId);
         navigate(`/track?case=${data.caseId}`);
       } else {
         throw new Error(data.error || 'Server error');
       }
     } catch (e) {
-      alert("Failed to send SOS. Please call emergency services directly.");
+      alert(t('nav.sosFailed'));
     } finally {
       setIsSosLoading(false);
     }
   };
 
   const navItems = [
-    { name: 'Home', path: '/', icon: Home },
-    { name: 'Submit Report', path: '/submit', icon: Send },
-    { name: 'Track Case', path: '/track', icon: Activity },
-    { name: 'WhatsApp', path: '/whatsapp', icon: MessageCircle },
-    { name: 'Admin', path: '/admin', icon: Lock },
+    { name: t('nav.home'), path: '/', icon: Home },
+    { name: t('nav.submit'), path: '/submit', icon: Send },
+    { name: t('nav.track'), path: '/track', icon: Activity },
+    { name: t('nav.whatsapp'), path: '/whatsapp', icon: MessageCircle },
+    { name: t('nav.admin'), path: '/admin', icon: Lock },
   ];
 
   return (
-    <div className="min-h-screen flex flex-col font-sans text-brand-dark">
-      <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-md border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+    <div className="min-h-screen flex flex-col text-brand-dark" style={{ fontFamily: 'var(--font-body)' }}>
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-18 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-12 h-12 bg-gradient-to-br from-brand-primary to-brand-accent rounded-xl flex items-center justify-center text-white shadow-lg shadow-brand-primary/20 group-hover:scale-105 transition-transform duration-300">
-              <Shield size={28} className="fill-white/20" />
+            <div className="w-10 h-10 bg-brand-primary rounded-xl flex items-center justify-center text-white shadow-sm group-hover:shadow-md transition-shadow duration-200">
+              <Shield size={22} className="fill-white/20" />
             </div>
             <div>
-              <h1 className="font-bold text-2xl tracking-tight text-brand-dark flex items-center gap-2">
+              <h1 className="font-bold text-xl tracking-tight text-brand-dark flex items-center gap-2" style={{ fontFamily: 'var(--font-heading)' }}>
                 SafeReport
-                <span className="text-xs font-semibold px-2 py-1 bg-brand-primary/10 text-brand-primary rounded-full uppercase tracking-wider">
+                <span className="text-[10px] font-semibold px-2 py-0.5 bg-brand-primary/10 text-brand-primary rounded-full uppercase tracking-wider">
                   DSATM
                 </span>
               </h1>
-              <p className="text-xs text-gray-500 font-medium">Encrypted Campus Reporting</p>
+              <p className="text-[11px] text-slate-500 font-medium hidden sm:block">{t('nav.tagline')}</p>
             </div>
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-2">
+          <nav className="hidden md:flex items-center gap-1">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -88,93 +90,111 @@ export default function Layout() {
                   key={item.path}
                   to={item.path}
                   className={cn(
-                    "flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all duration-300",
+                    "flex items-center gap-2 px-3.5 py-2 rounded-lg font-medium text-sm transition-all duration-200",
                     isActive
-                      ? "bg-brand-primary text-white shadow-md shadow-brand-primary/20"
-                      : "text-gray-600 hover:bg-gray-100 hover:text-brand-dark"
+                      ? "bg-brand-primary text-white shadow-sm"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-brand-dark"
                   )}
                 >
-                  <Icon size={18} />
+                  <Icon size={16} />
                   {item.name}
                 </Link>
               );
             })}
             
-            <div className="h-6 w-px bg-gray-300 mx-2"></div>
+            <div className="h-5 w-px bg-slate-200 mx-2"></div>
             
             <button 
-              onClick={() => setLang(lang === 'EN' ? 'HI' : 'EN')}
-              className="flex items-center gap-2 px-3 py-2 text-sm font-bold text-gray-600 hover:text-brand-dark transition-colors border border-gray-300 rounded-lg hover:border-gray-500"
+              onClick={toggleLang}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold text-slate-500 hover:text-brand-dark transition-colors border border-slate-200 rounded-lg hover:border-slate-300"
             >
-              <Globe size={16} className="text-brand-primary" />
-              {lang}
+              <Globe size={14} className="text-brand-primary" />
+              {lang.toUpperCase()}
             </button>
           </nav>
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden p-2 rounded-xl text-gray-600 hover:bg-gray-100 transition-colors"
+            className="md:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle menu"
           >
-            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
 
         {/* Mobile Nav Drawer */}
-        {mobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-200 bg-white/95 backdrop-blur-xl animate-[slideDown_0.2s_ease-out]">
-            <nav className="max-w-7xl mx-auto px-4 py-3 space-y-1">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = location.pathname === item.path;
-                return (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={cn(
-                      "flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 w-full",
-                      isActive
-                        ? "bg-brand-primary text-white shadow-md shadow-brand-primary/20"
-                        : "text-gray-600 hover:bg-gray-100 hover:text-brand-dark"
-                    )}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2, ease: 'easeOut' }}
+              className="md:hidden border-t border-slate-200 bg-white/95 backdrop-blur-xl overflow-hidden"
+            >
+              <nav className="max-w-7xl mx-auto px-4 py-3 space-y-1">
+                {navItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = location.pathname === item.path;
+                  return (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={cn(
+                        "flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 w-full",
+                        isActive
+                          ? "bg-brand-primary text-white"
+                          : "text-slate-600 hover:bg-slate-100 hover:text-brand-dark"
+                      )}
+                    >
+                      <Icon size={20} />
+                      {item.name}
+                    </Link>
+                  );
+                })}
+                <div className="pt-2 pb-1 border-t border-slate-100 mt-2 flex justify-between items-center px-4">
+                  <span className="text-sm font-medium text-slate-500">Language / भाषा</span>
+                  <button 
+                    onClick={toggleLang}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-600 hover:text-brand-dark transition-colors border border-slate-200 rounded-lg hover:border-slate-300 bg-white"
                   >
-                    <Icon size={20} />
-                    {item.name}
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
-        )}
+                    <Globe size={14} className="text-brand-primary" />
+                    {lang.toUpperCase()}
+                  </button>
+                </div>
+              </nav>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </header>
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
         <Outlet />
       </main>
 
-      <footer className="bg-white border-t border-gray-200 mt-auto">
-        <div className="max-w-7xl mx-auto px-4 py-6 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500">
-          <p>© {new Date().getFullYear()} DSATM SafeReport Project. All rights reserved.</p>
-          <div className="flex items-center gap-2 mt-2 md:mt-0 px-3 py-1.5 bg-gray-50 rounded-lg border border-gray-200">
+      <footer className="bg-white border-t border-slate-200 mt-auto">
+        <div className="max-w-7xl mx-auto px-4 py-5 flex flex-col md:flex-row justify-between items-center text-sm text-slate-500">
+          <p>{t('nav.footerCopy')}</p>
+          <div className="flex items-center gap-2 mt-2 md:mt-0 px-3 py-1.5 bg-slate-50 rounded-lg border border-slate-200">
             <Lock size={14} className="text-brand-primary" />
-            <span className="font-mono text-xs text-brand-primary tracking-widest">AES-256 ENCRYPTED</span>
+            <span className="font-mono text-xs text-brand-primary tracking-widest">{t('nav.encrypted')}</span>
           </div>
         </div>
       </footer>
 
       <AIAssistant />
       
-      {/* GLOBAL FLOATING SOS BUTTON */}
+      {/* GLOBAL FLOATING SOS BUTTON — bottom-right, primary thumb zone */}
       <button
         onClick={handleSos}
         disabled={isSosLoading}
-        className="fixed bottom-6 right-6 z-50 w-16 h-16 bg-red-600 rounded-full flex flex-col items-center justify-center text-white shadow-[0_0_25px_rgba(220,38,38,0.6)] hover:scale-110 hover:bg-red-500 transition-all duration-300 group border-2 border-red-400/50"
+        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-red-600 rounded-full flex flex-col items-center justify-center text-white shadow-lg hover:bg-red-700 hover:shadow-xl transition-all duration-200 border-2 border-red-500/30"
+        aria-label="Emergency SOS"
       >
-        <AlertTriangle size={24} className="group-hover:animate-ping absolute opacity-50" />
-        <AlertTriangle size={24} className="relative z-10" />
-        <span className="text-[10px] font-bold mt-0.5 tracking-wider">SOS</span>
+        <AlertTriangle size={20} />
+        <span className="text-[9px] font-bold mt-0.5 tracking-wider">{t('nav.sos')}</span>
       </button>
     </div>
   );

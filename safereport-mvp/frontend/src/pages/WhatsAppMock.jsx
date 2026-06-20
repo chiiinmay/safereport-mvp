@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { MessageCircle, Send, Smartphone, ScanLine, ShieldCheck } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { motion } from 'framer-motion';
 
 function cn(...inputs) {
   return twMerge(clsx(inputs));
@@ -38,39 +39,44 @@ export default function WhatsAppMock() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto mt-4 animate-fade-in relative z-10 flex flex-col md:flex-row gap-8">
+    <motion.div
+      className="max-w-4xl mx-auto mt-4 relative z-10 flex flex-col md:flex-row gap-8"
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
+    >
       {/* Left side: Instructions */}
       <div className="flex-1 space-y-6">
-        <div className="flex items-center gap-4 mb-8">
-          <div className="w-16 h-16 bg-[#25D366]/20 border-2 border-[#25D366] rounded-2xl flex items-center justify-center text-[#25D366] shadow-[0_0_30px_rgba(37,211,102,0.3)]">
-            <MessageCircle size={32} />
+        <div className="flex items-center gap-4 mb-6">
+          <div className="w-14 h-14 bg-[#25D366]/15 border-2 border-[#25D366]/50 rounded-2xl flex items-center justify-center text-[#25D366]">
+            <MessageCircle size={28} />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-white">WhatsApp Bot Integration</h1>
-            <p className="text-[#25D366] font-medium mt-1 uppercase tracking-widest text-sm">Official Integration Demo</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-brand-dark" style={{ fontFamily: 'var(--font-heading)' }}>WhatsApp Bot Integration</h1>
+            <p className="text-[#25D366] font-medium mt-1 uppercase tracking-widest text-xs">Official Integration Demo</p>
           </div>
         </div>
 
-        <div className="glass-card p-8 border-slate-700 bg-slate-900/80">
-          <h3 className="text-xl font-bold text-white mb-4">How it works</h3>
-          <ul className="space-y-4 text-slate-300">
+        <div className="glass-card p-6 sm:p-8">
+          <h3 className="text-lg font-bold text-brand-dark mb-4" style={{ fontFamily: 'var(--font-heading)' }}>How it works</h3>
+          <ul className="space-y-4 text-slate-600">
             <li className="flex items-start gap-3">
-              <ScanLine className="text-[#25D366] shrink-0 mt-1" />
-              <span>Students scan a QR code placed around campus (bathrooms, notice boards) to instantly open a WhatsApp chat.</span>
+              <ScanLine className="text-[#25D366] shrink-0 mt-1" size={20} />
+              <span className="text-sm leading-relaxed">Students scan a QR code placed around campus (bathrooms, notice boards) to instantly open a WhatsApp chat.</span>
             </li>
             <li className="flex items-start gap-3">
-              <ShieldCheck className="text-[#25D366] shrink-0 mt-1" />
-              <span><strong>Privacy First:</strong> The Twilio/WhatsApp integration strips the phone number before saving to our database. Total anonymity is preserved.</span>
+              <ShieldCheck className="text-[#25D366] shrink-0 mt-1" size={20} />
+              <span className="text-sm leading-relaxed"><strong>Privacy First:</strong> The Twilio/WhatsApp integration strips the phone number before saving to our database. Total anonymity is preserved.</span>
             </li>
             <li className="flex items-start gap-3">
-              <Smartphone className="text-[#25D366] shrink-0 mt-1" />
-              <span>Report incidents via simple conversational text, without needing to download a separate app.</span>
+              <Smartphone className="text-[#25D366] shrink-0 mt-1" size={20} />
+              <span className="text-sm leading-relaxed">Report incidents via simple conversational text, without needing to download a separate app.</span>
             </li>
           </ul>
           
-          <div className="mt-8 p-4 bg-slate-800 rounded-xl border border-slate-700 text-center">
-            <p className="text-slate-400 text-sm mb-2">Scan to test (Mockup)</p>
-            <div className="w-48 h-48 bg-white mx-auto rounded-lg flex items-center justify-center border-4 border-slate-700 overflow-hidden p-2">
+          <div className="mt-6 p-4 bg-slate-50 rounded-xl border border-slate-200 text-center">
+            <p className="text-slate-400 text-xs mb-2">Scan to test (Mockup)</p>
+            <div className="w-40 h-40 bg-white mx-auto rounded-lg flex items-center justify-center border border-slate-200 overflow-hidden p-2">
               <img 
                 src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://wa.me/917259318926?text=REPORT" 
                 alt="WhatsApp QR Code" 
@@ -82,14 +88,14 @@ export default function WhatsAppMock() {
       </div>
 
       {/* Right side: Mock Phone UI */}
-      <div className="w-[350px] mx-auto md:mx-0 shrink-0 h-[700px] bg-slate-950 rounded-[40px] border-[8px] border-slate-800 shadow-2xl overflow-hidden relative flex flex-col">
+      <div className="w-[320px] sm:w-[340px] mx-auto md:mx-0 shrink-0 h-[640px] sm:h-[680px] bg-slate-950 rounded-[36px] border-[6px] border-slate-800 shadow-xl overflow-hidden relative flex flex-col">
         {/* Dynamic Island / Notch */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-slate-800 rounded-b-3xl z-20"></div>
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-5 bg-slate-800 rounded-b-2xl z-20"></div>
         
         {/* WA Header */}
-        <div className="bg-[#075E54] pt-10 pb-3 px-4 flex items-center gap-3 z-10 shadow-md">
-          <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-white">
-            <ShieldCheck size={20} />
+        <div className="bg-[#075E54] pt-9 pb-3 px-4 flex items-center gap-3 z-10 shadow-sm">
+          <div className="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center text-white">
+            <ShieldCheck size={18} />
           </div>
           <div>
             <h3 className="text-white font-bold text-sm">SafeReport Bot ✅</h3>
@@ -98,7 +104,7 @@ export default function WhatsAppMock() {
         </div>
 
         {/* WA Chat Area */}
-        <div className="flex-1 bg-[#E5DDD5] bg-[url('https://i.pinimg.com/originals/8c/98/99/8c98994518b575bfd8c949e91d20548b.jpg')] bg-cover p-4 overflow-y-auto space-y-3 custom-scrollbar">
+        <div className="flex-1 bg-[#E5DDD5] bg-[url('https://i.pinimg.com/originals/8c/98/99/8c98994518b575bfd8c949e91d20548b.jpg')] bg-cover p-3 overflow-y-auto space-y-2.5 custom-scrollbar">
           {messages.map((m, i) => (
             <div key={i} className={cn("flex max-w-[85%]", m.role === 'user' ? "ml-auto justify-end" : "mr-auto")}>
               <div className={cn(
@@ -132,6 +138,6 @@ export default function WhatsAppMock() {
           </form>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
